@@ -59,8 +59,12 @@ def _scan_call(text: str, keyword: str) -> str | None:
     return None
 
 
-def truncate(s: str, limit: int = 4000, marker: str = "\n…[truncated]…\n") -> str:
-    """Truncate s to ~limit chars, keeping head+tail so context isn't lost."""
+def truncate(s: str | None, limit: int = 4000, marker: str = "\n…[truncated]…\n") -> str:
+    """Truncate s to ~limit chars, keeping head+tail so context isn't lost.
+
+    `None` is accepted defensively (callers in error/edge paths sometimes
+    forward optional fields) and is treated as the empty string.
+    """
     if s is None:
         return ""
     if len(s) <= limit:

@@ -133,7 +133,13 @@ class MemoryStore:
         new_confidence: float | None = None,
         reason: str | None = None,
     ) -> str:
-        """Create a NEW unit that supersedes `unit_id`. Old unit is kept (audit)."""
+        """Create a NEW unit that supersedes `unit_id`.
+
+        The old unit is marked invalidated so default reads (`all`, `query`,
+        `summary`) no longer surface it as a live belief, but it is preserved
+        in `_units` and reachable via `include_invalidated=True` so the audit
+        trail is intact.
+        """
         old = self.get(unit_id)
         new_id = self.add(
             content=new_content,
@@ -147,6 +153,13 @@ class MemoryStore:
         revised.revision_of = unit_id
         revised.revision_history = [*old.revision_history, unit_id]
         old.metadata["superseded_by"] = new_id
+        # Critical: the old belief must stop appearing in live reads, otherwise
+        # both the pre- and post-revision values are returned by all()/query()
+        # and the revision guarantee is silently broken.
+        old.invalidated = True
+        old.invalidation_reason = (
+            f"superseded by {new_id}" + (f": {reason}" if reason else "")
+        )
         self.events.append(
             MemoryEvent(
                 kind=MemoryEventKind.REVISE,

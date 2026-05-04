@@ -98,9 +98,13 @@ def _check_memory_expectations(expects: dict[str, int], memory: MemoryStore) -> 
 
 
 def _memory_counts(memory: MemoryStore) -> dict[str, int]:
-    facts = sum(1 for u in memory if u.type is BeliefType.FACT)
-    hyps = sum(1 for u in memory if u.type is BeliefType.HYPOTHESIS)
-    concs = sum(1 for u in memory if u.type is BeliefType.CONCLUSION)
+    # Only count LIVE units for fact/hypothesis/conclusion totals — units
+    # invalidated by revise() or merge() are still in `_units` for the audit
+    # trail but are no longer beliefs the system holds.
+    live = memory.all()
+    facts = sum(1 for u in live if u.type is BeliefType.FACT)
+    hyps = sum(1 for u in live if u.type is BeliefType.HYPOTHESIS)
+    concs = sum(1 for u in live if u.type is BeliefType.CONCLUSION)
     revises = sum(1 for e in memory.events if e.kind is MemoryEventKind.REVISE)
     invs = sum(1 for e in memory.events if e.kind is MemoryEventKind.INVALIDATE)
     merges = sum(1 for e in memory.events if e.kind is MemoryEventKind.MERGE)
