@@ -96,6 +96,18 @@ class MemoryStore:
             u for u in self._units.values() if include_invalidated or not u.invalidated
         ]
 
+    @property
+    def live_count(self) -> int:
+        """Number of currently-believed (non-invalidated) units.
+
+        Distinct from `len(memory)`, which counts every unit ever added —
+        including those superseded by `revise()` or absorbed by `merge()`.
+        Use `live_count` when reporting the size of memory to the LLM or
+        a human; use `len(memory)` only when you genuinely mean "audit-trail
+        size, including superseded entries".
+        """
+        return sum(1 for u in self._units.values() if not u.invalidated)
+
     def query(
         self,
         *,

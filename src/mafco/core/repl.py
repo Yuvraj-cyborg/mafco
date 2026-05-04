@@ -107,9 +107,11 @@ class ReplExecutor:
         try:
             with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
                 exec(compile(code, "<repl>", "exec"), self._globals)
-        except SystemExit:
-            raise
-        except BaseException:
+        # Catch only `Exception`, not `BaseException`: KeyboardInterrupt and
+        # SystemExit (and GeneratorExit) MUST propagate so Ctrl+C actually
+        # stops the RLM loop instead of being captured into a traceback
+        # string and fed back to the LLM, which would then keep running.
+        except Exception:
             return ReplResult(stdout=buf.getvalue(), error=traceback.format_exc())
         return ReplResult(stdout=buf.getvalue(), error=None)
 

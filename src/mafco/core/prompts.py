@@ -49,7 +49,8 @@ The REPL is initialised with the following names:
      memory.query(type=..., min_confidence=..., contains=..., tag=...)
      memory.facts() / memory.hypotheses() / memory.conclusions()
      memory.summary()                          # human-readable digest
-     len(memory)                               # number of units
+     memory.live_count                         # currently-believed units
+     len(memory)                               # all units incl. superseded (audit)
 
    Rules:
      - Whenever you extract a claim from `context`, store it as a fact with

@@ -225,7 +225,7 @@ class RLM:
                     "role": "user",
                     "content": (
                         f"REPL output:\n{feedback}\n\n"
-                        f"--- memory snapshot ({len(memory)} live units) ---\n"
+                        f"--- memory snapshot ({memory.live_count} live units) ---\n"
                         f"{mem_digest}\n--- end snapshot ---\n\n"
                         "Continue. Either run another repl block or emit FINAL."
                     ),
@@ -285,7 +285,10 @@ class RLM:
 
 
 def _initial_user_message(query: str, memory: MemoryStore) -> str:
-    seed = memory.summary() if len(memory) > 0 else "(memory is empty)"
+    # Use live_count, not len(): a memory whose only units are invalidated
+    # entries from an earlier session has no live beliefs to seed with, so
+    # presenting it as a populated snapshot would mislead the model.
+    seed = memory.summary() if memory.live_count > 0 else "(memory is empty)"
     return (
         f"QUERY:\n{query}\n\n"
         f"Initial memory snapshot:\n{seed}\n\n"
