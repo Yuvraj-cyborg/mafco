@@ -1,0 +1,38 @@
+[
+  {
+    "id": "lab_correction",
+    "category": "revision",
+    "query": "What is the current best yield for the MX-7 synthesis? Give a single number.",
+    "context": "Lab notebook (chronological).\n[2026-04-10] MX-7 synthesised. Yield: 62% under reflux in toluene.\n[2026-04-14] Re-running showed the 62% figure was wrong: it conflated crude with purified material. Actual yield is 41%. Use 41% going forward.\n[2026-04-19] Cambridge group independently replicates: 38-43% range, agrees with our 41%.",
+    "must_contain": ["41"],
+    "must_not_contain_in_answer": ["62%"],
+    "expects": {"min_revisions": 1}
+  },
+  {
+    "id": "falsified_hypothesis",
+    "category": "invalidation",
+    "query": "Should we use xylene instead of toluene to boost MX-7 yield? Answer yes or no with the measured number.",
+    "context": "[2026-04-22] Hypothesis: switching from toluene to xylene will increase yield because xylene's higher BP drives equilibrium forward.\n[2026-04-30] Xylene experiment ran. Measured yield with xylene: 37%. Toluene baseline: 41%.",
+    "must_contain": ["no", "37"],
+    "must_not_contain_in_answer": [],
+    "expects": {"min_invalidations": 1}
+  },
+  {
+    "id": "merge_duplicates",
+    "category": "merge",
+    "query": "What is the molecular weight of MX-7? Single number, units.",
+    "context": "Source A (mass spec report): MX-7 m/z = 314.2.\nSource B (synthesis paper draft): the molecular weight of MX-7 is approximately 314 g/mol.\nSource C (internal wiki): MX-7 MW: 314.2 daltons.",
+    "must_contain": ["314"],
+    "must_not_contain_in_answer": [],
+    "expects": {"min_facts": 2}
+  },
+  {
+    "id": "multi_step_aggregation",
+    "category": "aggregation",
+    "query": "List the three solvents tested for MX-7 and give their yields, in order best to worst.",
+    "context": "Trial 1: solvent toluene, yield 41%.\nTrial 2: solvent xylene, yield 37%.\nTrial 3: solvent DMF, yield 18% (but lots of side products).\nTrial 4 (cancelled): chloroform, never run.",
+    "must_contain": ["toluene", "xylene", "DMF", "41", "37", "18"],
+    "must_not_contain_in_answer": ["chloroform"],
+    "expects": {"min_facts": 3}
+  }
+]
